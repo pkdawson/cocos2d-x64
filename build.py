@@ -102,6 +102,7 @@ def cocos_fetch():
     with setdir('cocos2d-x'):
         call('git checkout {}'.format(COCOS_COMMIT))
         call('{} download-deps.py --remove-download=no'.format(sys.executable))
+        call('git submodule update --init')
 
 def cocos_prep():
     with setdir('cocos2d-x/external'):
@@ -139,10 +140,6 @@ def cocos_prep():
         })
 
 def cocos_cmake():
-    try:
-        shutil.rmtree('ccbuild')
-    except:
-        pass
     os.mkdir('ccbuild')
     with setdir('ccbuild'):
         call('cmake -G "{}" -DUSE_EXTERNAL_PREBUILT=OFF -DGEN_COCOS_PREBUILT=ON -DDEBUG_MODE=OFF -DCMAKE_PREFIX_PATH={} ../cocos2d-x'.format(CMAKE_MSVS, vcpkg_dir))
