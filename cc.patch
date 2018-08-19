@@ -1,0 +1,315 @@
+diff --git a/cmake/Modules/CocosBuildHelpers.cmake b/cmake/Modules/CocosBuildHelpers.cmake
+index 586e50d7a9..adefb8cfec 100644
+--- a/cmake/Modules/CocosBuildHelpers.cmake
++++ b/cmake/Modules/CocosBuildHelpers.cmake
+@@ -99,16 +99,16 @@ endfunction()
+ 
+ # copy the `cocos_target` needed dlls into `COPY_TO` folder
+ function(cocos_copy_target_dll cocos_target)
+-    set(oneValueArgs COPY_TO)
+-    cmake_parse_arguments(opt "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+-    get_target_depends_ext_dlls(${cocos_target} all_depend_dlls)
+-    # remove repeat items
+-    list(REMOVE_DUPLICATES all_depend_dlls)
+-    message(STATUS "prepare to copy external dlls for ${cocos_target}:${all_depend_dlls}")
+-    foreach(cc_dll_file ${all_depend_dlls})
+-        get_filename_component(cc_dll_name ${cc_dll_file} NAME)
+-        configure_file(${cc_dll_file} "${opt_COPY_TO}/${cc_dll_name}" COPYONLY)
+-    endforeach()
++    # set(oneValueArgs COPY_TO)
++    # cmake_parse_arguments(opt "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
++    # get_target_depends_ext_dlls(${cocos_target} all_depend_dlls)
++    # # remove repeat items
++    # list(REMOVE_DUPLICATES all_depend_dlls)
++    # message(STATUS "prepare to copy external dlls for ${cocos_target}:${all_depend_dlls}")
++    # foreach(cc_dll_file ${all_depend_dlls})
++    #     get_filename_component(cc_dll_name ${cc_dll_file} NAME)
++    #     configure_file(${cc_dll_file} "${opt_COPY_TO}/${cc_dll_name}" COPYONLY)
++    # endforeach()
+ endfunction()
+ 
+ # find dlls in a dir which `LIB_ABS_PATH` located, and save the result in `dlls_out`
+diff --git a/cmake/Modules/CocosBuildModules.cmake b/cmake/Modules/CocosBuildModules.cmake
+index d8769a3150..352f35b9c7 100644
+--- a/cmake/Modules/CocosBuildModules.cmake
++++ b/cmake/Modules/CocosBuildModules.cmake
+@@ -45,7 +45,7 @@
+ 
+  # Recast (not prebuilded, exists as source)
+  if(USE_RECAST)
+-     if(USE_EXTERNAL_PREBUILT)
++     if(TRUE)
+          set(_recast_prefix RECAST)
+          set(RECAST_INCLUDE_DIRS ${COCOS2DX_ROOT_PATH}/external/recast)
+          if(USE_COCOS_PREBUILT)
+@@ -127,7 +127,7 @@
+  # dists have packages from zlib, thats very old for us.
+  # moreover our embedded version modified to quick provide
+  # functionality needed by cocos.
+- if(USE_EXTERNAL_PREBUILT)
++ if(TRUE)
+      set(_unzip_prefix MINIZIP)
+      include_directories(${ZLIB_INCLUDE_DIRS})
+      set(MINIZIP_INCLUDE_DIRS ${COCOS2DX_ROOT_PATH}/external/unzip ${ZLIB_INCLUDE_DIRS})
+@@ -175,6 +175,7 @@
+  if(NOT USE_EXTERNAL_PREBUILT)
+      cocos_find_package(OpenSSL OPENSSL REQUIRED)
+  endif()
++ add_definitions(-DCURL_STATICLIB)
+ 
+  # flatbuffers
+  if(USE_EXTERNAL_PREBUILT)
+diff --git a/cmake/Modules/CocosCompileOptions.cmake b/cmake/Modules/CocosCompileOptions.cmake
+index d6551be902..8bdd90fb36 100644
+--- a/cmake/Modules/CocosCompileOptions.cmake
++++ b/cmake/Modules/CocosCompileOptions.cmake
+@@ -84,10 +84,10 @@
+ 
+  # Set compiler options
+  if(MSVC)
+-     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
+-     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
+-     set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /NODEFAULTLIB:msvcrt /NODEFAULTLIB:libcmt")
+-     set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /NODEFAULTLIB:libcmt")
++     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
++     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
++     set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG}")
++     set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
+ 
+      add_definitions(-DUNICODE -D_UNICODE)
+      add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS
+diff --git a/cmake/Modules/CocosUseLibs.cmake b/cmake/Modules/CocosUseLibs.cmake
+index c010f9b65f..3a594f8ce0 100644
+--- a/cmake/Modules/CocosUseLibs.cmake
++++ b/cmake/Modules/CocosUseLibs.cmake
+@@ -8,7 +8,7 @@ macro(cocos2d_depend_libs)
+         foreach(_pkg OPENGL GLEW GLFW3 VORBIS MPG123 OPENAL SQLITE3)
+             list(APPEND PREBUILT_SPECIFIC_LIBS ${_pkg})
+         endforeach()
+-        list(APPEND PLATFORM_SPECIFIC_LIBS ws2_32 winmm Version Iphlpapi)
++        list(APPEND PLATFORM_SPECIFIC_LIBS ws2_32 winmm Version Iphlpapi crypt32)
+         if(MINGW)
+             list(APPEND PLATFORM_SPECIFIC_LIBS shlwapi version)
+         endif()
+diff --git a/cmake/Modules/FindChipmunk.cmake b/cmake/Modules/FindChipmunk.cmake
+index 6fd591734d..a551c679d8 100644
+--- a/cmake/Modules/FindChipmunk.cmake
++++ b/cmake/Modules/FindChipmunk.cmake
+@@ -71,7 +71,7 @@ IF(CHIPMUNK_LIBRARY)
+   ENDIF(UNIX AND NOT APPLE)
+ ENDIF(CHIPMUNK_LIBRARY)
+ 
+-INCLUDE(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
++INCLUDE(FindPackageHandleStandardArgs)
+ # handle the QUIETLY and REQUIRED arguments and set CHIPMUNK_FOUND to TRUE if 
+ # all listed variables are TRUE
+ FIND_PACKAGE_HANDLE_STANDARD_ARGS(Chipmunk DEFAULT_MSG CHIPMUNK_LIBRARIES CHIPMUNK_INCLUDE_DIR)
+diff --git a/cmake/Modules/FindFMOD.cmake b/cmake/Modules/FindFMOD.cmake
+index f14a9a4d5c..685ca4bbf1 100644
+--- a/cmake/Modules/FindFMOD.cmake
++++ b/cmake/Modules/FindFMOD.cmake
+@@ -44,7 +44,7 @@ find_library(FMOD_LIBRARY NAMES fmod fmod64
+ set(FMOD_INCLUDE_DIRS "${FMOD_INCLUDE_DIR}")
+ set(FMOD_LIBRARIES "${FMOD_LIBRARY}")
+ 
+-include(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
++include(FindPackageHandleStandardArgs)
+ find_package_handle_standard_args(FMOD DEFAULT_MSG FMOD_LIBRARIES FMOD_INCLUDE_DIRS)
+ 
+ mark_as_advanced(FMOD_INCLUDE_DIR FMOD_LIBRARY FMOD_INCLUDE_DIRS FMOD_LIBRARIES)
+diff --git a/cmake/Modules/FindGLFW3.cmake b/cmake/Modules/FindGLFW3.cmake
+index e82dd40685..1aecabd91c 100644
+--- a/cmake/Modules/FindGLFW3.cmake
++++ b/cmake/Modules/FindGLFW3.cmake
+@@ -148,7 +148,7 @@ if(NOT GLFW3_FOUND)
+   set(GLFW3_INCLUDE_DIRS "${GLFW3_INCLUDE_DIR}")
+   set(GLFW3_LIBRARIES "${GLFW3_LIBRARY}")
+ 
+-  include(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
++  include(FindPackageHandleStandardArgs)
+   find_package_handle_standard_args(GLFW3 DEFAULT_MSG GLFW3_LIBRARIES GLFW3_INCLUDE_DIR)
+ 
+ endif()
+diff --git a/cmake/Modules/FindMINIZIP.cmake b/cmake/Modules/FindMINIZIP.cmake
+index 93efa3595d..54c851173a 100644
+--- a/cmake/Modules/FindMINIZIP.cmake
++++ b/cmake/Modules/FindMINIZIP.cmake
+@@ -53,7 +53,7 @@ find_library(MINIZIP_LIBRARY NAMES minizip libminizip
+ set(MINIZIP_INCLUDE_DIRS "${MINIZIP_INCLUDE_DIR}")
+ set(MINIZIP_LIBRARIES "${MINIZIP_LIBRARY}")
+ 
+-include(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
++include(FindPackageHandleStandardArgs)
+ find_package_handle_standard_args(MINIZIP DEFAULT_MSG MINIZIP_LIBRARIES MINIZIP_INCLUDE_DIRS)
+ 
+ mark_as_advanced(MINIZIP_INCLUDE_DIR MINIZIP_LIBRARY)
+diff --git a/cmake/Modules/FindRecast.cmake b/cmake/Modules/FindRecast.cmake
+index d87b3bfbc8..e735e04924 100644
+--- a/cmake/Modules/FindRecast.cmake
++++ b/cmake/Modules/FindRecast.cmake
+@@ -26,7 +26,7 @@ find_library(RECAST_LIBRARY
+ set(RECAST_INCLUDE_DIRS "${RECAST_INCLUDE_DIR}")
+ set(RECAST_LIBRARIES "${RECAST_LIBRARY}")
+ 
+-include(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
++include(FindPackageHandleStandardArgs)
+ find_package_handle_standard_args(RECAST DEFAULT_MSG RECAST_LIBRARIES RECAST_INCLUDE_DIRS)
+ 
+ mark_as_advanced(RECAST_INCLUDE_DIR RECAST_LIBRARY)
+diff --git a/cmake/Modules/FindTinyXML2.cmake b/cmake/Modules/FindTinyXML2.cmake
+index eb9ba957c9..6897bea1e2 100644
+--- a/cmake/Modules/FindTinyXML2.cmake
++++ b/cmake/Modules/FindTinyXML2.cmake
+@@ -45,7 +45,7 @@ find_library(TinyXML2_LIBRARY
+ set(TinyXML2_INCLUDE_DIRS "${TinyXML2_INCLUDE_DIR}")
+ set(TinyXML2_LIBRARIES "${TinyXML2_LIBRARY}")
+ 
+-include(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
++include(FindPackageHandleStandardArgs)
+ find_package_handle_standard_args(TinyXML2 DEFAULT_MSG TinyXML2_LIBRARIES TinyXML2_INCLUDE_DIRS)
+ 
+ mark_as_advanced(TinyXML2_INCLUDE_DIRS TinyXML2_LIBRARIES TinyXML2_LIBRARY)
+diff --git a/cmake/Modules/FindWEBSOCKETS.cmake b/cmake/Modules/FindWEBSOCKETS.cmake
+index 475d167753..a7c5259398 100644
+--- a/cmake/Modules/FindWEBSOCKETS.cmake
++++ b/cmake/Modules/FindWEBSOCKETS.cmake
+@@ -42,7 +42,7 @@ find_library(WEBSOCKETS_LIBRARY NAMES websockets libwebsockets
+ set(WEBSOCKETS_INCLUDE_DIRS ${WEBSOCKETS_INCLUDE_DIR})
+ set(WEBSOCKETS_LIBRARIES ${WEBSOCKETS_LIBRARY})
+ 
+-include(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
++include(FindPackageHandleStandardArgs)
+ find_package_handle_standard_args(WEBSOCKETS DEFAULT_MSG WEBSOCKETS_LIBRARIES WEBSOCKETS_INCLUDE_DIRS)
+ 
+ mark_as_advanced(WEBSOCKETS_LIBRARIES WEBSOCKETS_INCLUDE_DIRS)
+diff --git a/cmake/Modules/FindWebP.cmake b/cmake/Modules/FindWebP.cmake
+index f7b140b979..ea9ef3d86b 100644
+--- a/cmake/Modules/FindWebP.cmake
++++ b/cmake/Modules/FindWebP.cmake
+@@ -61,7 +61,7 @@ FIND_LIBRARY(WEBP_LIBRARY
+ set(WEBP_INCLUDE_DIRS "${WEBP_INCLUDE_DIR}")
+ set(WEBP_LIBRARIES "${WEBP_LIBRARY}")
+ 
+-INCLUDE(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
++INCLUDE(FindPackageHandleStandardArgs)
+ # handle the QUIETLY and REQUIRED arguments and set WEBP_FOUND to TRUE if 
+ # all listed variables are TRUE
+ FIND_PACKAGE_HANDLE_STANDARD_ARGS(WebP DEFAULT_MSG WEBP_LIBRARIES WEBP_INCLUDE_DIR)
+diff --git a/cmake/Modules/Findflatbuffers.cmake b/cmake/Modules/Findflatbuffers.cmake
+index f6302e53cf..24cf5dff3f 100644
+--- a/cmake/Modules/Findflatbuffers.cmake
++++ b/cmake/Modules/Findflatbuffers.cmake
+@@ -26,7 +26,7 @@ find_library(FLATBUFFERS_LIBRARY
+ set(FLATBUFFERS_INCLUDE_DIRS "${FLATBUFFERS_INCLUDE_DIR}")
+ set(FLATBUFFERS_LIBRARIES "${FLATBUFFERS_LIBRARY}")
+ 
+-include(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
++include(FindPackageHandleStandardArgs)
+ find_package_handle_standard_args(FLATBUFFERS DEFAULT_MSG FLATBUFFERS_LIBRARIES FLATBUFFERS_INCLUDE_DIRS)
+ 
+ mark_as_advanced(FLATBUFFERS_INCLUDE_DIR FLATBUFFERS_LIBRARY)
+diff --git a/cmake/Modules/Findxxhash.cmake b/cmake/Modules/Findxxhash.cmake
+index 034a694864..101c4b56c8 100644
+--- a/cmake/Modules/Findxxhash.cmake
++++ b/cmake/Modules/Findxxhash.cmake
+@@ -26,7 +26,7 @@ find_library(XXHASH_LIBRARY
+ set(XXHASH_INCLUDE_DIRS "${XXHASH_INCLUDE_DIR}")
+ set(XXHASH_LIBRARIES "${XXHASH_LIBRARY}")
+ 
+-include(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
++include(FindPackageHandleStandardArgs)
+ find_package_handle_standard_args(XXHASH DEFAULT_MSG XXHASH_LIBRARIES XXHASH_INCLUDE_DIRS)
+ 
+ mark_as_advanced(XXHASH_INCLUDE_DIR XXHASH_LIBRARY)
+diff --git a/cocos/physics3d/CCPhysics3DConstraint.cpp b/cocos/physics3d/CCPhysics3DConstraint.cpp
+index 7af43247e2..0532123de4 100644
+--- a/cocos/physics3d/CCPhysics3DConstraint.cpp
++++ b/cocos/physics3d/CCPhysics3DConstraint.cpp
+@@ -313,7 +313,7 @@ bool Physics3DHingeConstraint::getEnableAngularMotor() const
+ }
+ float Physics3DHingeConstraint::getMotorTargetVelosity() const
+ {
+-    return static_cast<btHingeConstraint*>(_constraint)->getMotorTargetVelosity();
++    return static_cast<btHingeConstraint*>(_constraint)->getMotorTargetVelocity();
+ }
+ float Physics3DHingeConstraint::getMaxMotorImpulse() const
+ {
+diff --git a/cocos/platform/CCFileUtils.cpp b/cocos/platform/CCFileUtils.cpp
+index 99816efa69..f74022b2a2 100644
+--- a/cocos/platform/CCFileUtils.cpp
++++ b/cocos/platform/CCFileUtils.cpp
+@@ -34,7 +34,7 @@ THE SOFTWARE.
+ #include "platform/CCSAXParser.h"
+ //#include "base/ccUtils.h"
+ 
+-#include "tinyxml2/tinyxml2.h"
++#include "tinyxml2.h"
+ #ifdef MINIZIP_FROM_SYSTEM
+ #include <minizip/unzip.h>
+ #else // from our embedded sources
+diff --git a/cocos/ui/UIEditBox/UIEditBoxImpl-win32.cpp b/cocos/ui/UIEditBox/UIEditBoxImpl-win32.cpp
+index 7be7aacc8b..b943247203 100644
+--- a/cocos/ui/UIEditBox/UIEditBoxImpl-win32.cpp
++++ b/cocos/ui/UIEditBox/UIEditBoxImpl-win32.cpp
+@@ -61,7 +61,7 @@ namespace ui {
+ 
+         s_hInstance = ::GetModuleHandleW(nullptr);
+ 
+-        s_prevCocosWndProc = (WNDPROC)SetWindowLongPtrW(s_hwndCocos, GWL_WNDPROC, (LONG_PTR)hookGLFWWindowProc);
++        s_prevCocosWndProc = (WNDPROC)SetWindowLongPtrW(s_hwndCocos, GWLP_WNDPROC, (LONG_PTR)hookGLFWWindowProc);
+     }
+ 
+     EditBoxImpl* __createSystemEditBox(EditBox* pEditBox)
+@@ -97,7 +97,7 @@ namespace ui {
+     {
+         if (_hwndEdit)
+         {
+-            SetWindowLongPtrW(_hwndEdit, GWL_WNDPROC, (LONG_PTR)_prevWndProc);
++            SetWindowLongPtrW(_hwndEdit, GWLP_WNDPROC, (LONG_PTR)_prevWndProc);
+             ::DestroyWindow(_hwndEdit);
+             _hasFocus = false;
+             _changedTextManually = false;
+@@ -124,8 +124,8 @@ namespace ui {
+                 s_hInstance,
+                 this);        // pointer not needed 
+ 
+-            SetWindowLongPtrW(_hwndEdit, GWL_USERDATA, (LONG_PTR)this);
+-            _prevWndProc = (WNDPROC)SetWindowLongPtrW(_hwndEdit, GWL_WNDPROC, (LONG_PTR)WindowProc);
++            SetWindowLongPtrW(_hwndEdit, GWLP_USERDATA, (LONG_PTR)this);
++            _prevWndProc = (WNDPROC)SetWindowLongPtrW(_hwndEdit, GWLP_WNDPROC, (LONG_PTR)WindowProc);
+ 
+             ::SendMessageW(_hwndEdit, EM_LIMITTEXT, this->_maxLength, 0);
+             s_previousFocusWnd = s_hwndCocos;
+diff --git a/extensions/physics-nodes/CCPhysicsDebugNode.cpp b/extensions/physics-nodes/CCPhysicsDebugNode.cpp
+index 1e975619a2..ea2d950a68 100644
+--- a/extensions/physics-nodes/CCPhysicsDebugNode.cpp
++++ b/extensions/physics-nodes/CCPhysicsDebugNode.cpp
+@@ -71,6 +71,7 @@ static Vec2 cpVert2Point(const cpVect &vert)
+ 
+ static void DrawShape(cpShape *shape, DrawNode *renderer)
+ {
++#if 0
+     cpBody *body = cpShapeGetBody(shape);
+     Color4F color = ColorForBody(body);
+     
+@@ -107,6 +108,7 @@ static void DrawShape(cpShape *shape, DrawNode *renderer)
+         default:
+             cpAssertHard(false, "Bad assertion in DrawShape()");
+     }
++#endif
+ }
+ 
+ static Color4F CONSTRAINT_COLOR(0, 1, 0, 0.5);
+diff --git a/tests/cpp-tests/CMakeLists.txt b/tests/cpp-tests/CMakeLists.txt
+index a2ec182b14..9a4e96d445 100644
+--- a/tests/cpp-tests/CMakeLists.txt
++++ b/tests/cpp-tests/CMakeLists.txt
+@@ -444,7 +444,7 @@ if(USE_BULLET)
+          Classes/Physics3DTest/Physics3DTest.cpp
+          Classes/NavMeshTest/NavMeshTest.cpp
+          )
+-    include_directories(${BULLET_INCLUDE_DIRS})
++    include_directories(${BULLET_INCLUDE_DIR})
+ endif()
+ 
+ if(NOT LINUX)
