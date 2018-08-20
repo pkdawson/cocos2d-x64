@@ -15,7 +15,7 @@ so I need to build some stuff manually.
 * Visual Studio 2017
     * Desktop development with C++
     * Windows 8.1 SDK
-* StrawberryPerl (for building OpenSSL)
+* Strawberry Perl (for building OpenSSL)
 * Python 2.7
 
 ## Building

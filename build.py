@@ -46,13 +46,7 @@ def do_vcpkg():
     with setdir('vcpkg'):
         call('bootstrap-vcpkg.bat')
         pkgs = 'bullet3 chipmunk freetype glew glfw3 libjpeg-turbo libvorbis mpg123 openal-soft tinyxml2 tiff libwebp sqlite3 flatbuffers xxhash'
-        call('vcpkg --triplet {} install {}'.format(VCPKG_TRIPLET, pkgs))
-
-    # this seemed easier than adding lzma.lib as an extra dependency?
-    with setdir(vcpkg_lib):
-        call('lib /OUT:tmp.lib tiff.lib lzma.lib')
-        os.rename('tiff.lib', 'tiff.lib.bak')
-        os.rename('tmp.lib', 'tiff.lib')
+        call('vcpkg --triplet {} install {}'.format(VCPKG_TRIPLET, pkgs)) 
 
 def build_openssl():
     call('git clone https://github.com/openssl/openssl')
