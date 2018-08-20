@@ -234,6 +234,19 @@ index b16ed3839d..2ef9f1aca3 100644
          std::sort(std::begin(nodes), std::end(nodes), [](_T* n1, _T* n2) {
              return (n1->_localZOrder$Arrival < n2->_localZOrder$Arrival);
          });
+diff --git a/cocos/deprecated/CCString.h b/cocos/deprecated/CCString.h
+index 906aebad12..8d4edd5cca 100644
+--- a/cocos/deprecated/CCString.h
++++ b/cocos/deprecated/CCString.h
+@@ -201,7 +201,7 @@ public:
+     std::string _string;
+ };
+ 
+-struct StringCompare : public std::binary_function<__String *, __String *, bool> {
++struct StringCompare {
+     public:
+         bool operator() (__String * a, __String * b) const {
+             return strcmp(a->getCString(), b->getCString()) < 0;
 diff --git a/cocos/physics3d/CCPhysics3DConstraint.cpp b/cocos/physics3d/CCPhysics3DConstraint.cpp
 index 7af43247e2..0532123de4 100644
 --- a/cocos/physics3d/CCPhysics3DConstraint.cpp

@@ -1,5 +1,5 @@
 diff --git a/msvc/vc14/chipmunk/chipmunk.vcxproj b/msvc/vc14/chipmunk/chipmunk.vcxproj
-index e1ed87c..f243a97 100644
+index e1ed87c..515fa3d 100644
 --- a/msvc/vc14/chipmunk/chipmunk.vcxproj
 +++ b/msvc/vc14/chipmunk/chipmunk.vcxproj
 @@ -1,5 +1,5 @@
@@ -71,8 +71,9 @@ index e1ed87c..f243a97 100644
 -    <ConfigurationType>DynamicLibrary</ConfigurationType>
 +    <ConfigurationType>StaticLibrary</ConfigurationType>
      <UseDebugLibraries>false</UseDebugLibraries>
-     <WholeProgramOptimization>true</WholeProgramOptimization>
+-    <WholeProgramOptimization>true</WholeProgramOptimization>
 -    <PlatformToolset>v140</PlatformToolset>
++    <WholeProgramOptimization>false</WholeProgramOptimization>
 +    <PlatformToolset>v141</PlatformToolset>
    </PropertyGroup>
    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'" Label="Configuration">
