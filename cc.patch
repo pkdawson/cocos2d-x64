@@ -1,3 +1,16 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c4257a222d..31ce7a1a49 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -39,7 +39,7 @@ include(CocosBuildSet)
+ 
+ # default tests include lua, js test project, so we set those option on to build libs
+ set(BUILD_LUA_LIBS ON)
+-set(BUILD_JS_LIBS ON)
++set(BUILD_JS_LIBS OFF)
+ 
+ if(NOT USE_COCOS_PREBUILT)
+     add_subdirectory(${COCOS2DX_ROOT_PATH}/cocos ${ENGINE_BINARY_PATH}/cocos/core)
 diff --git a/cmake/Modules/CocosBuildHelpers.cmake b/cmake/Modules/CocosBuildHelpers.cmake
 index 586e50d7a9..adefb8cfec 100644
 --- a/cmake/Modules/CocosBuildHelpers.cmake
@@ -273,6 +286,19 @@ index 99816efa69..f74022b2a2 100644
  #ifdef MINIZIP_FROM_SYSTEM
  #include <minizip/unzip.h>
  #else // from our embedded sources
+diff --git a/cocos/scripting/lua-bindings/auto/lua_cocos2dx_auto.cpp b/cocos/scripting/lua-bindings/auto/lua_cocos2dx_auto.cpp
+index efa5ba2c27..fca4b799e4 100644
+--- a/cocos/scripting/lua-bindings/auto/lua_cocos2dx_auto.cpp
++++ b/cocos/scripting/lua-bindings/auto/lua_cocos2dx_auto.cpp
+@@ -96659,7 +96659,7 @@ int lua_cocos2dx_SpriteBatchNode_create(lua_State* tolua_S)
+     if (argc == 2)
+     {
+         std::string arg0;
+-        ssize_t arg1;
++        ssize_t arg1 = 0; // workaround for bug with luaval_to_ssize?
+         ok &= luaval_to_std_string(tolua_S, 2,&arg0, "cc.SpriteBatchNode:create");
+         ok &= luaval_to_ssize(tolua_S, 3, &arg1, "cc.SpriteBatchNode:create");
+         if(!ok)
 diff --git a/cocos/ui/UIEditBox/UIEditBoxImpl-win32.cpp b/cocos/ui/UIEditBox/UIEditBoxImpl-win32.cpp
 index 7be7aacc8b..b943247203 100644
 --- a/cocos/ui/UIEditBox/UIEditBoxImpl-win32.cpp
@@ -319,8 +345,31 @@ index 1e975619a2..e2c2ed308c 100644
      {
          case CP_CIRCLE_SHAPE:
          {
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index bc896b1791..d724c9a208 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -29,12 +29,17 @@
+ # library have been build, on ../CMakeLists.txt, uesed to prevent tests project build engine lib again
+ set(BUILD_ENGINE_DONE ON)
+ 
++link_libraries("${CMAKE_PREFIX_PATH}/lib/bz2.lib")
++link_libraries("${CMAKE_PREFIX_PATH}/lib/lzma.lib")
++link_libraries("${CMAKE_PREFIX_PATH}/lib/lua51.lib")
++add_definitions(-DCC_ENABLE_CHIPMUNK_INTEGRATION=1)
++
+ # add engine all tests project
+ add_subdirectory(${COCOS2DX_ROOT_PATH}/tests/cpp-empty-test ${ENGINE_BINARY_PATH}/tests/cpp-empty-test)
+ 
+ add_subdirectory(${COCOS2DX_ROOT_PATH}/tests/cpp-tests ${ENGINE_BINARY_PATH}/tests/cpp-tests)
+ 
+-add_subdirectory(${COCOS2DX_ROOT_PATH}/tests/js-tests/project ${ENGINE_BINARY_PATH}/tests/js-tests)
++# add_subdirectory(${COCOS2DX_ROOT_PATH}/tests/js-tests/project ${ENGINE_BINARY_PATH}/tests/js-tests)
+ 
+ add_subdirectory(${COCOS2DX_ROOT_PATH}/tests/lua-empty-test/project ${ENGINE_BINARY_PATH}/tests/lua-empty-test)
+ 
 diff --git a/tests/cpp-tests/CMakeLists.txt b/tests/cpp-tests/CMakeLists.txt
-index a2ec182b14..a2c4bdc758 100644
+index a2ec182b14..9a4e96d445 100644
 --- a/tests/cpp-tests/CMakeLists.txt
 +++ b/tests/cpp-tests/CMakeLists.txt
 @@ -444,7 +444,7 @@ if(USE_BULLET)
@@ -332,13 +381,3 @@ index a2ec182b14..a2c4bdc758 100644
  endif()
  
  if(NOT LINUX)
-@@ -470,6 +470,9 @@ cocos_build_app(${APP_NAME}
-                 COMMON_USE_PKGS "FREETYPE" "CURL"
-                 LINUX_USE_PKGS "FONTCONFIG" "GTK3"
-                 )
-+target_link_libraries(${APP_NAME} "${CMAKE_PREFIX_PATH}/lib/bz2.lib")
-+target_link_libraries(${APP_NAME} "${CMAKE_PREFIX_PATH}/lib/lzma.lib")
-+add_definitions(-DCC_ENABLE_CHIPMUNK_INTEGRATION=1)
- 
- # mark app resources
- if(APPLE)

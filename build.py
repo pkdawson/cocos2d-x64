@@ -45,7 +45,7 @@ def do_vcpkg():
     call('git clone https://github.com/Microsoft/vcpkg')
     with setdir('vcpkg'):
         call('bootstrap-vcpkg.bat')
-        pkgs = 'bullet3 chipmunk freetype glew glfw3 libjpeg-turbo libvorbis mpg123 openal-soft tinyxml2 tiff libwebp sqlite3 flatbuffers xxhash'
+        pkgs = 'bullet3 chipmunk freetype glew glfw3 libjpeg-turbo libvorbis mpg123 openal-soft tinyxml2 tiff libwebp sqlite3 flatbuffers xxhash luajit'
         call('vcpkg --triplet {} install {}'.format(VCPKG_TRIPLET, pkgs)) 
 
 def build_openssl():
@@ -128,16 +128,11 @@ def cocos_prep():
     with setdir('cocos2d-x'):
         call('git apply {}/cc.patch'.format(patch_dir))
 
-        # use 64-bit Spidermonkey
-        sedi('external/spidermonkey/include/win32/js-config.h', {
-             '#define JS_NUNBOX32 1' : '#define JS_PUNBOX64 1',
-        })
-
 def cocos_cmake():
     os.mkdir('ccbuild')
     with setdir('ccbuild'):
         call('cmake -G "{}" -DUSE_EXTERNAL_PREBUILT=OFF -DGEN_COCOS_PREBUILT=ON -DDEBUG_MODE=OFF -DCMAKE_PREFIX_PATH={} ../cocos2d-x'.format(CMAKE_MSVS, vcpkg_dir))
-        call('cmake --build . --config Release --target cpp-tests')
+        call('cmake --build . --config Release')
 
 
 def main():

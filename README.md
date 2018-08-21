@@ -1,9 +1,9 @@
 # cocos2d-x64
 
 A quick and dirty script to build cocos2d-x for 64-bit Windows, with static libraries and linked to the static runtime.
-Some stuff is probably broken, js-tests and lua-tests don't build, but cpp-tests seems fine and that's all I need.
 
-Only builds the release libraries, not debug.
+Only builds the release libraries, not debug. And no Javascript library because SpiderMonkey looks like a nightmare
+to build, and I don't need it.
 
 Uses a recent Git version of cocos2d-x (2018-08-17) instead of 3.17, mostly to fix a bug with cocos_copy_res.
 
